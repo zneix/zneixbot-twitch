@@ -18,8 +18,12 @@ func Connect() {
 	}
 	mongoUser, _ := utils.GetEnv("MONGO_USER", true)
 	mongoPassword, _ := utils.GetEnv("MONGO_PASSWORD", true)
+	mongoAuthDb, isAuthDb := utils.GetEnv("MONGO_AUTHDB", false)
+	if !isAuthDb {
+		mongoAuthDb = "admin"
+	}
 
-	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s", mongoUser, url.QueryEscape(mongoPassword), "localhost:"+mongoPort))
+	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s/?authSource=%s", mongoUser, url.QueryEscape(mongoPassword), "localhost:"+mongoPort, mongoAuthDb))
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		log.Fatalf("Failed to init mongo client: %s", err.Error())
