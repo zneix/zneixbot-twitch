@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Connect() {
+func Connect() *mongo.Client {
 	mongoPort, isPort := utils.GetEnv("MONGO_PORT", false)
 	if !isPort {
 		mongoPort = "27017"
@@ -25,6 +25,7 @@ func Connect() {
 
 	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s/?authSource=%s", mongoUser, url.QueryEscape(mongoPassword), "localhost:"+mongoPort, mongoAuthDb))
 	client, err := mongo.NewClient(clientOptions)
+
 	if err != nil {
 		log.Fatalf("Failed to init mongo client: %s", err.Error())
 	}
@@ -40,4 +41,6 @@ func Connect() {
 	}
 
 	log.Println("Successfully connected to MongoDB!")
+
+	return client
 }

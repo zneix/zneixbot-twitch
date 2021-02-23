@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	"github.com/zneix/zniksbot/mongo"
+	. "github.com/zneix/zniksbot/bot"
+	db "github.com/zneix/zniksbot/mongo"
 	"github.com/zneix/zniksbot/utils"
 )
 
@@ -16,25 +16,21 @@ func connectToChannels(client *twitch.Client, channels []string) {
 	}
 }
 
-func registerEventHandlers(client *twitch.Client) {
-	client.OnConnect(func() {
-		log.Println("connected to IRC")
-	})
-
-	client.OnPrivateMessage(func(message twitch.PrivateMessage) {
-		log.Println(fmt.Sprintf("[#%s] %s: %s", message.Channel, message.User.DisplayName, message.Message))
-	})
-}
-
 func main() {
 	log.Println("Starting zniksbot!")
 
-	mongo.Connect()
+	mongoClient := db.Connect()
 
 	oauth, _ := utils.GetEnv("OAUTH", true)
 	twitchClient := twitch.NewClient("zniksbot", oauth)
 
-	registerEventHandlers(twitchClient)
+	Zniksbot = &Bot{
+		Client:   twitchClient,
+		Mongo:    mongoClient,
+		LastMsgs: make(map[string]string),
+	}
+
+	registerEventHandlers()
 
 	connectToChannels(twitchClient, []string{"supinic", "zniksbot"})
 
