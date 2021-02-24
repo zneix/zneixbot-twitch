@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
 	. "github.com/zneix/zniksbot/bot"
@@ -9,10 +10,15 @@ import (
 	"github.com/zneix/zniksbot/utils"
 )
 
-func connectToChannels(client *twitch.Client, channels []string) {
-	for i := 0; i < len(channels); i++ {
-		client.Join(channels[i])
-		client.Say(channels[i], "HONEYDETECTED ❗")
+var channels = map[string]*Channel{
+	"supinic":  {Name: "supinic", Cooldowns: make(map[string]time.Time)},
+	"zniksbot": {Name: "zniksbot", Cooldowns: make(map[string]time.Time)},
+}
+
+func connectToChannels() {
+	for i := range channels {
+		Zniksbot.Client.Join(i)
+		Zniksbot.Client.Say(i, "HONEYDETECTED ❗")
 	}
 }
 
@@ -22,19 +28,19 @@ func main() {
 	mongoClient := db.Connect()
 
 	oauth, _ := utils.GetEnv("OAUTH", true)
-	twitchClient := twitch.NewClient("zniksbot", oauth)
 
 	Zniksbot = &Bot{
-		Client:   twitchClient,
-		Mongo:    mongoClient,
-		LastMsgs: make(map[string]string),
+		Client:    twitch.NewClient("zniksbot", oauth),
+		Mongo:     mongoClient,
+		Channels:  channels,
+		Commands:  initCommands(),
+		StartTime: time.Now(),
 	}
 
 	registerEventHandlers()
+	connectToChannels()
 
-	connectToChannels(twitchClient, []string{"supinic", "zniksbot"})
-
-	err := twitchClient.Connect()
+	err := Zniksbot.Client.Connect()
 
 	if err != nil {
 		log.Fatalln(err.Error())
