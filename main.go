@@ -11,8 +11,9 @@ import (
 )
 
 var channels = map[string]*Channel{
-	"supinic":  {Name: "supinic", Cooldowns: make(map[string]time.Time)},
+	//"supinic":  {Name: "supinic", Cooldowns: make(map[string]time.Time)},
 	"zniksbot": {Name: "zniksbot", Cooldowns: make(map[string]time.Time)},
+	"zneix":    {Name: "zneix", Cooldowns: make(map[string]time.Time)},
 }
 
 func connectToChannels() {
