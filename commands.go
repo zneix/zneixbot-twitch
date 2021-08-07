@@ -32,8 +32,7 @@ func initCommands() map[string]*Command {
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			SendTwitchMessage(msg.Channel, fmt.Sprintf("hi KKona 👋 I woke up %s ago", utils.TimeSince(Zniksbot.StartTime)))
-
+			SendTwitchMessage(msg.RoomID, fmt.Sprintf("hi KKona 👋 I woke up %s ago", utils.TimeSince(Zniksbot.StartTime)))
 		},
 	}
 	commands["help"] = &Command{
@@ -41,7 +40,7 @@ func initCommands() map[string]*Command {
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			SendTwitchMessage(msg.Channel, fmt.Sprintf("@%s, list of commands: ping, help", msg.User.Name))
+			SendTwitchMessage(msg.RoomID, fmt.Sprintf("@%s, list of commands: ping, help", msg.User.Name))
 		},
 	}
 	commands["chatdelay"] = &Command{
@@ -71,11 +70,11 @@ func initCommands() map[string]*Command {
 
 			fmt.Println(jsonResponse)
 			if jsonResponse.Status != 200 || jsonResponse.Error != "" {
-				SendTwitchMessage(msg.Channel, "Something went wrong, perhaps the channel name you've given is invalid FeelsBadMan")
+				SendTwitchMessage(msg.RoomID, "Something went wrong, perhaps the channel name you've given is invalid FeelsBadMan")
 				return
 			}
 
-			SendTwitchMessage(msg.Channel, fmt.Sprintf("The delay in %s's channel is set to %d miliseconds OMGScoots", jsonResponse.Username, jsonResponse.Delay))
+			SendTwitchMessage(msg.RoomID, fmt.Sprintf("The delay in %s's channel is set to %d miliseconds OMGScoots", jsonResponse.Username, jsonResponse.Delay))
 
 		},
 	}
@@ -94,13 +93,15 @@ func handleCommands(msg twitch.PrivateMessage, command string, args []string) {
 	}
 
 	// handling cooldowns
-	log.Println(time.Since(Zniksbot.Channels[msg.Channel].Cooldowns[msg.User.ID]))
-	if time.Since(Zniksbot.Channels[msg.Channel].Cooldowns[msg.User.ID]) < cmd.Cooldown {
+	log.Println(time.Since(Zniksbot.Channels[msg.RoomID].Cooldowns[msg.User.ID]))
+	if time.Since(Zniksbot.Channels[msg.RoomID].Cooldowns[msg.User.ID]) < cmd.Cooldown {
 		return
 	}
 
 	cmd.Run(msg, args)
 
 	// apply cooldown
-	Zniksbot.Channels[msg.Channel].Cooldowns[msg.User.ID] = time.Now()
+	if msg.User.ID != "99631238" {
+		Zniksbot.Channels[msg.RoomID].Cooldowns[msg.User.ID] = time.Now()
+	}
 }

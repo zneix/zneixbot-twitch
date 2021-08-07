@@ -10,16 +10,31 @@ import (
 	"github.com/zneix/zniksbot/utils"
 )
 
+// TODO: Store chnnels in e.g. database instead of hardcoding them
 var channels = map[string]*Channel{
-	//"supinic":  {Name: "supinic", Cooldowns: make(map[string]time.Time)},
-	"zniksbot": {Name: "zniksbot", Cooldowns: make(map[string]time.Time)},
-	"zneix":    {Name: "zneix", Cooldowns: make(map[string]time.Time)},
+	"463521670": {
+		Login: "zneixbot",
+	},
+	"99631238": {
+		Login: "zneix",
+	},
+	"31400525": {
+		Login: "supinic",
+	},
 }
 
-func connectToChannels() {
-	for i := range channels {
-		Zniksbot.Client.Join(i)
-		Zniksbot.Client.Say(i, "HONEYDETECTED ❗")
+func initChannels() {
+	for ID, chn := range channels {
+		// Initialize default values
+		chn.Cooldowns = make(map[string]time.Time)
+		chn.QueueChannel = make(chan *QueuedMessage)
+
+		// Start message queue routine
+		go SendToChannel(chn.QueueChannel, ID)
+
+		// JOIN the channel
+		Zniksbot.Client.Join(chn.Login)
+		SendTwitchMessage(ID, "HONEYDETECTED ❗")
 	}
 }
 
@@ -39,7 +54,7 @@ func main() {
 	}
 
 	registerEventHandlers()
-	connectToChannels()
+	initChannels()
 
 	err := Zniksbot.Client.Connect()
 
