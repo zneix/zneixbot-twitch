@@ -39,14 +39,14 @@ func initChannels() {
 }
 
 func main() {
-	log.Println("Starting zniksbot!")
+	log.Println("Starting zneixbot!")
 
 	mongoClient := db.Connect()
 
 	oauth, _ := utils.GetEnv("OAUTH", true)
 
 	Zniksbot = &Bot{
-		Client:    twitch.NewClient("zniksbot", oauth),
+		Client:    twitch.NewClient("zneixbot", oauth),
 		Mongo:     mongoClient,
 		Channels:  channels,
 		Commands:  initCommands(),

@@ -15,7 +15,7 @@ import (
 
 const (
 	ivrAPI    = "https://api.ivr.fi"
-	userAgent = "zniksbot/0.0.1"
+	userAgent = "zneixbot/0.0.1"
 )
 
 var (
