@@ -1,4 +1,4 @@
-module github.com/zneix/zniksbot
+module github.com/zneix/zneixbot-twitch
 
 go 1.16
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	. "github.com/zneix/zniksbot/pkg/bot"
+	. "github.com/zneix/zneixbot-twitch/pkg/bot"
 )
 
 const prefix = "z!"

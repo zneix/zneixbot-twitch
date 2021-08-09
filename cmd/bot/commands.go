@@ -9,13 +9,12 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	. "github.com/zneix/zniksbot/pkg/bot"
-	"github.com/zneix/zniksbot/pkg/utils"
+	. "github.com/zneix/zneixbot-twitch/pkg/bot"
+	"github.com/zneix/zneixbot-twitch/pkg/utils"
 )
 
 const (
-	ivrAPI    = "https://api.ivr.fi"
-	userAgent = "zneixbot/0.0.1"
+	ivrAPI = "https://api.ivr.fi"
 )
 
 var (
@@ -53,7 +52,7 @@ func initCommands() map[string]*Command {
 				//
 			}
 
-			req.Header.Add("User-Agent", userAgent)
+			req.Header.Add("User-Agent", USER_AGENT)
 
 			resp, err := httpClient.Do(req)
 			if err != nil {

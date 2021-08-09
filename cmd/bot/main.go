@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	. "github.com/zneix/zniksbot/pkg/bot"
-	db "github.com/zneix/zniksbot/pkg/mongo"
-	"github.com/zneix/zniksbot/pkg/utils"
+	. "github.com/zneix/zneixbot-twitch/pkg/bot"
+	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
+	"github.com/zneix/zneixbot-twitch/pkg/utils"
 )
 
 // TODO: Store chnnels in e.g. database instead of hardcoding them
