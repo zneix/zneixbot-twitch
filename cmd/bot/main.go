@@ -5,36 +5,40 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	. "github.com/zneix/zneixbot-twitch/pkg/bot"
+	"github.com/zneix/zneixbot-twitch/pkg/bot"
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 	"github.com/zneix/zneixbot-twitch/pkg/utils"
 )
 
 // TODO: Store chnnels in e.g. database instead of hardcoding them
-var channels = map[string]*Channel{
-	"463521670": {
-		Login: "zneixbot",
-	},
-	"99631238": {
-		Login: "zneix",
-	},
-	"31400525": {
-		Login: "supinic",
-	},
-}
+var (
+	zb *bot.Bot
+
+	channels = map[string]*bot.Channel{
+		"463521670": {
+			Login: "zneixbot",
+		},
+		"99631238": {
+			Login: "zneix",
+		},
+		"31400525": {
+			Login: "supinic",
+		},
+	}
+)
 
 func initChannels() {
 	for ID, chn := range channels {
 		// Initialize default values
 		chn.Cooldowns = make(map[string]time.Time)
-		chn.QueueChannel = make(chan *QueuedMessage)
+		chn.QueueChannel = make(chan *bot.QueuedMessage)
 
 		// Start message queue routine
-		go SendToChannel(chn.QueueChannel, ID)
+		go bot.SendToChannel(zb, ID)
 
 		// JOIN the channel
-		Zniksbot.Client.Join(chn.Login)
-		SendTwitchMessage(ID, "HONEYDETECTED ❗")
+		zb.Client.Join(chn.Login)
+		bot.SendTwitchMessage(chn, "HONEYDETECTED ❗")
 	}
 }
 
@@ -45,7 +49,7 @@ func main() {
 
 	oauth, _ := utils.GetEnv("OAUTH", true)
 
-	Zniksbot = &Bot{
+	zb = &bot.Bot{
 		Client:    twitch.NewClient("zneixbot", oauth),
 		Mongo:     mongoClient,
 		Channels:  channels,
@@ -56,7 +60,7 @@ func main() {
 	registerEventHandlers()
 	initChannels()
 
-	err := Zniksbot.Client.Connect()
+	err := zb.Client.Connect()
 
 	if err != nil {
 		log.Fatalln(err.Error())

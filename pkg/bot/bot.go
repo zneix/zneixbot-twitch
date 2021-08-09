@@ -36,27 +36,28 @@ type QueuedMessage struct {
 }
 
 var (
-	Zniksbot   *Bot
 	tmiTimeout = 1300 * time.Millisecond
 )
 
-func SendToChannel(channel chan *QueuedMessage, channelID string) {
+func SendToChannel(zb *Bot, channelID string) {
 	fmt.Printf("Starting routine for %s\n", channelID)
-	for message := range channel {
+	var channel = zb.Channels[channelID]
+
+	for message := range channel.QueueChannel {
 		// Actually send the message to the chat
 		fmt.Printf("%# v\n", message) // debug
-		Zniksbot.Client.Say(Zniksbot.Channels[message.ChannelID].Login, message.Message)
+		zb.Client.Say(channel.Login, message.Message)
 		// Update last sent message
-		Zniksbot.Channels[message.ChannelID].LastMsg = message.Message
+		channel.LastMsg = message.Message
 
 		// Wait for the pleb cooldown
 		time.Sleep(tmiTimeout)
-		fmt.Println("Unlocked " + message.ChannelID)
+		fmt.Println("Unlocked " + channelID)
 	}
-	fmt.Printf("Done with routine for %s\n", channelID)
+	fmt.Println("Done with routine for " + channelID)
 }
 
-func SendTwitchMessage(targetID string, message string) {
+func SendTwitchMessage(channel *Channel, message string) {
 	// Don't attempt to send an empty message
 	if len(message) == 0 {
 		return
@@ -76,13 +77,12 @@ func SendTwitchMessage(targetID string, message string) {
 	}
 
 	// Append magic character at the end of the message if it's a duplicate
-	if Zniksbot.Channels[targetID].LastMsg == message {
+	if channel.LastMsg == message {
 		message += " \U000E0000"
 	}
 
 	// Send message object to the message processing queue
-	Zniksbot.Channels[targetID].QueueChannel <- &QueuedMessage{
-		ChannelID: targetID,
-		Message:   message,
+	channel.QueueChannel <- &QueuedMessage{
+		Message: message,
 	}
 }

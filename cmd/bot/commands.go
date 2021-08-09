@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	. "github.com/zneix/zneixbot-twitch/pkg/bot"
+	"github.com/zneix/zneixbot-twitch/pkg/bot"
 	"github.com/zneix/zneixbot-twitch/pkg/utils"
 )
 
@@ -23,30 +23,32 @@ var (
 	}
 )
 
-func initCommands() map[string]*Command {
-	commands := make(map[string]*Command)
+func initCommands() map[string]*bot.Command {
+	commands := make(map[string]*bot.Command)
 
-	commands["ping"] = &Command{
+	commands["ping"] = &bot.Command{
 		Name:        "ping",
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			SendTwitchMessage(msg.RoomID, fmt.Sprintf("hi KKona 👋 I woke up %s ago", utils.TimeSince(Zniksbot.StartTime)))
+			bot.SendTwitchMessage(zb.Channels[msg.RoomID], fmt.Sprintf("hi KKona 👋 I woke up %s ago", utils.TimeSince(zb.StartTime)))
 		},
 	}
-	commands["help"] = &Command{
+	commands["help"] = &bot.Command{
 		Name:        "help",
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			SendTwitchMessage(msg.RoomID, fmt.Sprintf("@%s, list of commands: ping, help", msg.User.Name))
+			bot.SendTwitchMessage(zb.Channels[msg.RoomID], fmt.Sprintf("@%s, list of commands: ping, help", msg.User.Name))
 		},
 	}
-	commands["chatdelay"] = &Command{
+	commands["chatdelay"] = &bot.Command{
 		Name:        "chatdelay",
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
+			var channel = zb.Channels[msg.RoomID]
+
 			req, err := http.NewRequest("GET", fmt.Sprintf("%s/twitch/chatdelay/%s", ivrAPI, args[0]), nil)
 			if err != nil {
 				//
@@ -69,11 +71,11 @@ func initCommands() map[string]*Command {
 
 			fmt.Println(jsonResponse)
 			if jsonResponse.Status != 200 || jsonResponse.Error != "" {
-				SendTwitchMessage(msg.RoomID, "Something went wrong, perhaps the channel name you've given is invalid FeelsBadMan")
+				bot.SendTwitchMessage(channel, "Something went wrong, perhaps the channel name you've given is invalid FeelsBadMan")
 				return
 			}
 
-			SendTwitchMessage(msg.RoomID, fmt.Sprintf("The delay in %s's channel is set to %d miliseconds OMGScoots", jsonResponse.Username, jsonResponse.Delay))
+			bot.SendTwitchMessage(channel, fmt.Sprintf("The delay in %s's channel is set to %d miliseconds OMGScoots", jsonResponse.Username, jsonResponse.Delay))
 
 		},
 	}
@@ -84,7 +86,7 @@ func initCommands() map[string]*Command {
 func handleCommands(msg twitch.PrivateMessage, command string, args []string) {
 
 	// finding the command
-	cmd := Zniksbot.Commands[command]
+	cmd := zb.Commands[command]
 	log.Println(cmd)
 
 	if cmd == nil {
@@ -92,8 +94,8 @@ func handleCommands(msg twitch.PrivateMessage, command string, args []string) {
 	}
 
 	// handling cooldowns
-	log.Println(time.Since(Zniksbot.Channels[msg.RoomID].Cooldowns[msg.User.ID]))
-	if time.Since(Zniksbot.Channels[msg.RoomID].Cooldowns[msg.User.ID]) < cmd.Cooldown {
+	log.Println(time.Since(zb.Channels[msg.RoomID].Cooldowns[msg.User.ID]))
+	if time.Since(zb.Channels[msg.RoomID].Cooldowns[msg.User.ID]) < cmd.Cooldown {
 		return
 	}
 
@@ -101,6 +103,6 @@ func handleCommands(msg twitch.PrivateMessage, command string, args []string) {
 
 	// apply cooldown
 	if msg.User.ID != "99631238" {
-		Zniksbot.Channels[msg.RoomID].Cooldowns[msg.User.ID] = time.Now()
+		zb.Channels[msg.RoomID].Cooldowns[msg.User.ID] = time.Now()
 	}
 }

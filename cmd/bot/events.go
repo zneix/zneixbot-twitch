@@ -5,17 +5,16 @@ import (
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	. "github.com/zneix/zneixbot-twitch/pkg/bot"
 )
 
 const prefix = "z!"
 
 func registerEventHandlers() {
-	Zniksbot.Client.OnConnect(func() {
+	zb.Client.OnConnect(func() {
 		log.Println("connected to IRC")
 	})
 
-	Zniksbot.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+	zb.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		if !strings.HasPrefix(message.Message, prefix) {
 			return
 		}
