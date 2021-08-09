@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	envPrefix = "ZNIKSBOT_"
+	envPrefix = "ZNEIXBOT_"
 )
 
 func GetEnv(envName string, isRequired bool) (value string, exists bool) {
