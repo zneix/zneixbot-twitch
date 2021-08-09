@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/url"
 
-	"github.com/zneix/zniksbot/utils"
+	"github.com/zneix/zniksbot/pkg/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
