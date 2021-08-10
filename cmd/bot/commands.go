@@ -23,8 +23,8 @@ var (
 	}
 )
 
-func initCommands() map[string]*bot.Command {
-	commands := make(map[string]*bot.Command)
+func initCommands() (commands map[string]*bot.Command) {
+	commands = make(map[string]*bot.Command)
 
 	commands["ping"] = &bot.Command{
 		Name:        "ping",
@@ -80,7 +80,7 @@ func initCommands() map[string]*bot.Command {
 		},
 	}
 
-	return commands
+	return
 }
 
 func handleCommands(msg twitch.PrivateMessage, command string, args []string) {

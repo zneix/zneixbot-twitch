@@ -47,7 +47,7 @@ func initChannels() {
 }
 
 func main() {
-	log.Println("Starting zneixbot!")
+	log.Println("Starting zneixbot " + VERSION)
 
 	mongoClient := db.Connect()
 
@@ -66,7 +66,6 @@ func main() {
 	initChannels()
 
 	err := zb.Client.Connect()
-
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
