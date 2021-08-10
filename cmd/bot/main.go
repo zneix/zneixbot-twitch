@@ -29,9 +29,13 @@ var (
 
 func initChannels() {
 	for ID, chn := range channels {
+		// Set the ID in map translating login names back to IDs
+		zb.Logins[chn.Login] = ID
+
 		// Initialize default values
 		chn.Cooldowns = make(map[string]time.Time)
 		chn.QueueChannel = make(chan *bot.QueuedMessage)
+		chn.Ratelimit = bot.RatelimitMsgNormal
 
 		// Start message queue routine
 		go bot.SendToChannel(zb, ID)
@@ -52,6 +56,7 @@ func main() {
 	zb = &bot.Bot{
 		Client:    twitch.NewClient("zneixbot", oauth),
 		Mongo:     mongoClient,
+		Logins:    make(map[string]string),
 		Channels:  channels,
 		Commands:  initCommands(),
 		StartTime: time.Now(),

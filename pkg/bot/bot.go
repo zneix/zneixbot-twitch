@@ -1,60 +1,25 @@
 package bot
 
 import (
-	"fmt"
+	"log"
 	"time"
-
-	"github.com/gempir/go-twitch-irc/v2"
-	"go.mongodb.org/mongo-driver/mongo"
-)
-
-type Bot struct {
-	Client    *twitch.Client
-	Mongo     *mongo.Client
-	Channels  map[string]*Channel
-	Commands  map[string]*Command
-	StartTime time.Time
-}
-
-type Channel struct {
-	Login        string
-	LastMsg      string
-	QueueChannel chan *QueuedMessage
-	Cooldowns    map[string]time.Time
-}
-
-type Command struct {
-	Name        string
-	Permissions int
-	Cooldown    time.Duration
-	Run         func(msg twitch.PrivateMessage, args []string)
-}
-
-type QueuedMessage struct {
-	Message   string
-	ChannelID string
-}
-
-var (
-	tmiTimeout = 1300 * time.Millisecond
 )
 
 func SendToChannel(zb *Bot, channelID string) {
-	fmt.Printf("Starting routine for %s\n", channelID)
+	log.Printf("Starting routine for %s\n", channelID)
 	var channel = zb.Channels[channelID]
 
 	for message := range channel.QueueChannel {
 		// Actually send the message to the chat
-		fmt.Printf("%# v\n", message) // debug
 		zb.Client.Say(channel.Login, message.Message)
+
 		// Update last sent message
 		channel.LastMsg = message.Message
 
-		// Wait for the pleb cooldown
-		time.Sleep(tmiTimeout)
-		fmt.Println("Unlocked " + channelID)
+		// Wait for the cooldown
+		time.Sleep(channel.Ratelimit)
 	}
-	fmt.Println("Done with routine for " + channelID)
+	log.Println("Done with routine for " + channelID)
 }
 
 func SendTwitchMessage(channel *Channel, message string) {
