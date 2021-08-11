@@ -7,13 +7,20 @@ import (
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 )
 
+// Self contains properties related to bot's user account
+type Self struct {
+	Login   string
+	OAuth   string
+	BotType BotTypeEnum
+}
+
 type Bot struct {
 	Client    *twitch.Client
 	Mongo     *db.Connection
 	Logins    map[string]string
 	Channels  map[string]*Channel
 	Commands  map[string]*Command
-	BotType   BotTypeEnum
+	Self      *Self
 	StartTime time.Time
 }
 

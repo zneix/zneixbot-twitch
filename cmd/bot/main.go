@@ -21,11 +21,18 @@ func main() {
 
 	oauth, _ := utils.GetEnv("OAUTH", true)
 
+	self := &bot.Self{
+		Login:   "zneixbot",
+		OAuth:   oauth,
+		BotType: bot.BotTypeVerified,
+	}
+
 	zb = &bot.Bot{
-		Client:    twitch.NewClient("zneixbot", oauth),
+		Client:    twitch.NewClient(self.Login, self.OAuth),
 		Mongo:     db.NewMongoConnection(),
 		Logins:    make(map[string]string),
 		Commands:  initCommands(),
+		Self:      self,
 		StartTime: time.Now(),
 	}
 
