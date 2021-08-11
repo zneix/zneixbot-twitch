@@ -1,13 +1,14 @@
 package bot
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
 
 func SendToChannel(zb *Bot, channelID string) {
-	log.Printf("Starting routine for %s\n", channelID)
 	var channel = zb.Channels[channelID]
+	log.Println("Starting write routine for " + channel.VerboseName())
 
 	for message := range channel.QueueChannel {
 		// Actually send the message to the chat
@@ -19,7 +20,7 @@ func SendToChannel(zb *Bot, channelID string) {
 		// Wait for the cooldown
 		time.Sleep(channel.Ratelimit)
 	}
-	log.Println("Done with routine for " + channelID)
+	log.Println("Done with write routine for " + channel.VerboseName())
 }
 
 func SendTwitchMessage(channel *Channel, message string) {
@@ -50,4 +51,8 @@ func SendTwitchMessage(channel *Channel, message string) {
 	channel.QueueChannel <- &QueuedMessage{
 		Message: message,
 	}
+}
+
+func (c *Channel) VerboseName() string {
+	return fmt.Sprintf("#%s(%s)", c.Login, c.ID)
 }

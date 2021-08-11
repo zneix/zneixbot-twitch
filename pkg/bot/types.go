@@ -4,12 +4,12 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
-	"go.mongodb.org/mongo-driver/mongo"
+	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 )
 
 type Bot struct {
 	Client    *twitch.Client
-	Mongo     *mongo.Client
+	Mongo     *db.Connection
 	Logins    map[string]string
 	Channels  map[string]*Channel
 	Commands  map[string]*Command
@@ -18,7 +18,9 @@ type Bot struct {
 }
 
 type Channel struct {
-	Login        string
+	Login string `bson:"login"`
+	ID    string `bson:"id"`
+
 	LastMsg      string
 	Ratelimit    time.Duration
 	QueueChannel chan *QueuedMessage

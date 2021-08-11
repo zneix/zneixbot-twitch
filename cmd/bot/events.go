@@ -14,6 +14,7 @@ func registerEventHandlers() {
 	// Authenticated with IRC
 	zb.Client.OnConnect(func() {
 		log.Println("connected to IRC")
+		joinChannels()
 	})
 
 	// PRIVMSG
@@ -46,7 +47,7 @@ func registerEventHandlers() {
 
 		channel := zb.Channels[zb.Logins[message.Channel]]
 		if thisRatelimit != channel.Ratelimit {
-			log.Printf("Changed ratelimit in #%s from %v to %v", channel.Login, channel.Ratelimit, thisRatelimit)
+			log.Printf("Changed ratelimit in %s from %v to %v", channel.VerboseName(), channel.Ratelimit, thisRatelimit)
 			channel.Ratelimit = thisRatelimit
 		}
 	})
