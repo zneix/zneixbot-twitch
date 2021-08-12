@@ -31,7 +31,8 @@ func initCommands() (commands map[string]*bot.Command) {
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			bot.SendTwitchMessage(zb.Channels[msg.RoomID], fmt.Sprintf("hi KKona 👋 I woke up %s ago", utils.TimeSince(zb.StartTime)))
+			channel := zb.Channels[msg.RoomID]
+			channel.Send(fmt.Sprintf("hi KKona 👋 I woke up %s ago", utils.TimeSince(zb.StartTime)))
 		},
 	}
 	commands["help"] = &bot.Command{
@@ -39,7 +40,8 @@ func initCommands() (commands map[string]*bot.Command) {
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			bot.SendTwitchMessage(zb.Channels[msg.RoomID], fmt.Sprintf("@%s, list of commands: ping, help", msg.User.Name))
+			channel := zb.Channels[msg.RoomID]
+			channel.Send(fmt.Sprintf("@%s, list of commands: ping, help", msg.User.Name))
 		},
 	}
 	commands["chatdelay"] = &bot.Command{
@@ -47,7 +49,7 @@ func initCommands() (commands map[string]*bot.Command) {
 		Permissions: 0,
 		Cooldown:    5000 * time.Millisecond,
 		Run: func(msg twitch.PrivateMessage, args []string) {
-			var channel = zb.Channels[msg.RoomID]
+			channel := zb.Channels[msg.RoomID]
 
 			req, err := http.NewRequest("GET", fmt.Sprintf("%s/twitch/chatdelay/%s", ivrAPI, args[0]), nil)
 			if err != nil {
@@ -71,11 +73,11 @@ func initCommands() (commands map[string]*bot.Command) {
 
 			fmt.Println(jsonResponse)
 			if jsonResponse.Status != 200 || jsonResponse.Error != "" {
-				bot.SendTwitchMessage(channel, "Something went wrong, perhaps the channel name you've given is invalid FeelsBadMan")
+				channel.Send("Something went wrong, perhaps the channel name you've given is invalid FeelsBadMan")
 				return
 			}
 
-			bot.SendTwitchMessage(channel, fmt.Sprintf("The delay in %s's channel is set to %d miliseconds OMGScoots", jsonResponse.Username, jsonResponse.Delay))
+			channel.Send(fmt.Sprintf("The delay in %s's channel is set to %d miliseconds OMGScoots", jsonResponse.Username, jsonResponse.Delay))
 
 		},
 	}

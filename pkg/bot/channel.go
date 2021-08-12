@@ -1,29 +1,32 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
+
+	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-func SendToChannel(zb *Bot, channelID string) {
-	var channel = zb.Channels[channelID]
+func (channel *Channel) Write(bot *Bot) {
 	log.Println("Starting write routine for " + channel.VerboseName())
+	defer log.Println("Done with write routine for " + channel.VerboseName())
 
 	for message := range channel.QueueChannel {
 		// Actually send the message to the chat
-		zb.Client.Say(channel.Login, message.Message)
+		bot.Client.Say(channel.Login, message.Message)
 
 		// Update last sent message
 		channel.LastMsg = message.Message
 
 		// Wait for the cooldown
-		time.Sleep(channel.Ratelimit)
+		time.Sleep(channel.Mode.MessageRatelimit())
 	}
-	log.Println("Done with write routine for " + channel.VerboseName())
 }
 
-func SendTwitchMessage(channel *Channel, message string) {
+func (channel *Channel) Send(message string) {
 	// Don't attempt to send an empty message
 	if len(message) == 0 {
 		return
@@ -39,7 +42,6 @@ func SendTwitchMessage(channel *Channel, message string) {
 	// TODO: Investigate changing the limit based on bot's state in the channel and other settings
 	if len(message) > 300 {
 		message = message[0:297] + "..."
-
 	}
 
 	// Append magic character at the end of the message if it's a duplicate
@@ -53,6 +55,6 @@ func SendTwitchMessage(channel *Channel, message string) {
 	}
 }
 
-func (c *Channel) VerboseName() string {
-	return fmt.Sprintf("#%s(%s)", c.Login, c.ID)
+func (channel *Channel) VerboseName() string {
+	return fmt.Sprintf("#%s(%s)", channel.Login, channel.ID)
 }

@@ -54,10 +54,10 @@ func joinChannels() {
 		zb.Logins[channel.Login] = ID
 
 		// Start message queue routine
-		go bot.SendToChannel(zb, ID)
+		go channel.Write(zb)
 
 		// JOIN the channel
 		zb.Client.Join(channel.Login)
-		//bot.SendTwitchMessage(channel, "HONEYDETECTED ❗")
+		//channel.Send("HONEYDETECTED ❗")
 	}
 }
