@@ -18,7 +18,6 @@ func initChannels(parentCtx context.Context) (channels map[string]*bot.Channel) 
 	ctx, cancel := context.WithTimeout(parentCtx, 10*time.Second)
 	defer cancel()
 
-	//cur, err := zb.Mongo.Client.Database("zneixbot-twitch").Collection("channels").Find(context.TODO(), bson.D{})
 	cur, err := zb.Mongo.Collection(db.CollectionNameChannels).Find(ctx, bson.M{})
 	if err != nil {
 		log.Fatal(err)
@@ -35,7 +34,6 @@ func initChannels(parentCtx context.Context) (channels map[string]*bot.Channel) 
 		// Initialize default values
 		channel.Cooldowns = make(map[string]time.Time)
 		channel.QueueChannel = make(chan *bot.QueuedMessage)
-		channel.Ratelimit = bot.RatelimitMsgNormal
 
 		channels[(&channel).ID] = &channel
 	}

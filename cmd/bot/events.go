@@ -19,6 +19,14 @@ func registerEventHandlers() {
 
 	// PRIVMSG
 	zb.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+		channel := zb.Channels[zb.Logins[message.Channel]]
+
+		// Ignore inactive channels
+		if channel.Mode == bot.ChannelModeInactive {
+			return
+		}
+
+		// Ignore non-commands
 		if !strings.HasPrefix(message.Message, prefix) {
 			return
 		}
@@ -36,19 +44,30 @@ func registerEventHandlers() {
 
 	// USERSTATE
 	zb.Client.OnUserStateMessage(func(message twitch.UserStateMessage) {
-		// Check for user type change that signifies ratelimit in the current channel
-		thisRatelimit := bot.RatelimitMsgNormal
+		channel := zb.Channels[zb.Logins[message.Channel]]
+
+		// Ignore inactive channels
+		if channel.Mode == bot.ChannelModeInactive {
+			return
+		}
+
+		// Check if user type changed and update ChannelMode in the current channel accordingly
+		newMode := bot.ChannelModeNormal
 		for key := range message.User.Badges {
-			if key == "moderator" || key == "vip" || key == "broadcaster" {
-				thisRatelimit = bot.RatelimitMsgElevated
+			if key == "vip" {
+				newMode = bot.ChannelModeVIP
+				break
+			}
+			if key == "moderator" || key == "broadcaster" {
+				newMode = bot.ChannelModeModerator
 				break
 			}
 		}
 
-		channel := zb.Channels[zb.Logins[message.Channel]]
-		if thisRatelimit != channel.Ratelimit {
-			log.Printf("Changed ratelimit in %s from %v to %v", channel.VerboseName(), channel.Ratelimit, thisRatelimit)
-			channel.Ratelimit = thisRatelimit
+		if newMode != channel.Mode {
+			channel.ChangeMode(zb.Mongo, newMode)
+			//log.Printf("Changing mode in %s from %v to %v", channel.VerboseName(), channel.Mode.String(), newMode.String())
+			//channel.Mode = newMode
 		}
 	})
 }

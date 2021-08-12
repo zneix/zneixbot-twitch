@@ -58,3 +58,20 @@ func (channel *Channel) Send(message string) {
 func (channel *Channel) VerboseName() string {
 	return fmt.Sprintf("#%s(%s)", channel.Login, channel.ID)
 }
+
+func (channel *Channel) ChangeMode(mongo *db.Connection, newMode ChannelMode) {
+	log.Printf("Changing mode in %s from %v to %v", channel.VerboseName(), channel.Mode.String(), newMode.String())
+	channel.Mode = newMode
+
+	//Update mode in the database as well
+	_, err := mongo.Collection(db.CollectionNameChannels).UpdateOne(context.TODO(), bson.M{
+		"id": channel.ID,
+	}, bson.M{
+		"$set": bson.M{
+			"mode": newMode,
+		},
+	})
+	if err != nil {
+		log.Println("Error in Channel.ChangeMode: " + err.Error())
+	}
+}

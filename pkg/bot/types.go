@@ -11,7 +11,7 @@ import (
 type Self struct {
 	Login   string
 	OAuth   string
-	BotType BotTypeEnum
+	BotType BotType
 }
 
 type Bot struct {
@@ -25,11 +25,11 @@ type Bot struct {
 }
 
 type Channel struct {
-	Login string `bson:"login"`
-	ID    string `bson:"id"`
+	Login string      `bson:"login"`
+	ID    string      `bson:"id"`
+	Mode  ChannelMode `bson:"mode"`
 
 	LastMsg      string
-	Ratelimit    time.Duration
 	QueueChannel chan *QueuedMessage
 	Cooldowns    map[string]time.Time
 }
@@ -45,19 +45,51 @@ type QueuedMessage struct {
 	Message string
 }
 
-// BotTypeEnum represents which kind of global rate-limit the bot has
-type BotTypeEnum int32
+// BotType represents which kind of global rate-limit the bot has
+type BotType int32
 
 const (
-	BotTypeNormal BotTypeEnum = iota
+	BotTypeNormal BotType = iota
 	BotTypeKnown
 	BotTypeVerified
 )
 
-// ratelimit values for sending messages.
-// RatelimitMsgElevated can be used when the bot is a Moderator, VIP or Broadcaster.
-// RatelimitMsgNormal should be used in all other cases
+// ChannelMode ...
+type ChannelMode int32
+
 const (
-	RatelimitMsgNormal   = 1250 * time.Millisecond
-	RatelimitMsgElevated = 100 * time.Millisecond
+	ChannelModeNormal ChannelMode = iota
+	ChannelModeInactive
+	ChannelModeVIP
+	ChannelModeModerator
+)
+
+// String human-readable name of the mode. Meant to be used only in logs and output visible to end-user
+func (mode ChannelMode) String() string {
+	return []string{
+		"Normal",
+		"Inactive",
+		"VIP",
+		"Moderator",
+	}[int(mode)]
+}
+
+// MessageRatelimit returns underlying value of messageRatelimit that corresponds to mode
+func (mode ChannelMode) MessageRatelimit() time.Duration {
+	return []time.Duration{
+		time.Duration(messageRatelimitNormal),
+		time.Duration(messageRatelimitNormal),
+		time.Duration(messageRatelimitElevated),
+		time.Duration(messageRatelimitElevated),
+	}[int(mode)]
+}
+
+// messageRatelimit minimum value between which the bot user can send messages in target Channel
+type messageRatelimit time.Duration
+
+const (
+	// messageRatelimitNormal used in channels where bot has no special permissions
+	messageRatelimitNormal = messageRatelimit(1250 * time.Millisecond)
+	// messageRatelimitElevated used in channels where bot is a Moderator, VIP or Broadcaster
+	messageRatelimitElevated = messageRatelimit(100 * time.Millisecond)
 )
