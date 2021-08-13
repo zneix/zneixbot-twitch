@@ -20,13 +20,14 @@ type Bot struct {
 	Logins    map[string]string
 	Channels  map[string]*Channel
 	Commands  map[string]*Command
+	Users     map[string]*User
 	Self      *Self
 	StartTime time.Time
 }
 
 type Channel struct {
-	Login string      `bson:"login"`
 	ID    string      `bson:"id"`
+	Login string      `bson:"login"`
 	Mode  ChannelMode `bson:"mode"`
 
 	LastMsg      string
@@ -36,9 +37,16 @@ type Channel struct {
 
 type Command struct {
 	Name        string
-	Permissions int
+	Description string
+	Usage       string
+	Permission  Permission
 	Cooldown    time.Duration
-	Run         func(msg twitch.PrivateMessage, args []string)
+	Run         func(msg twitch.PrivateMessage, args []string) (err CommandError)
+}
+
+type User struct {
+	ID         string     `bson:"id"`
+	Permission Permission `bson:"permission"`
 }
 
 type QueuedMessage struct {
@@ -46,7 +54,7 @@ type QueuedMessage struct {
 }
 
 // BotType represents which kind of global rate-limit the bot has
-type BotType int32
+type BotType int
 
 const (
 	BotTypeNormal BotType = iota
@@ -55,13 +63,15 @@ const (
 )
 
 // ChannelMode ...
-type ChannelMode int32
+type ChannelMode int
 
 const (
 	ChannelModeNormal ChannelMode = iota
 	ChannelModeInactive
 	ChannelModeVIP
 	ChannelModeModerator
+
+	ChannelModeBoundary
 )
 
 // String human-readable name of the mode. Meant to be used only in logs and output visible to end-user
@@ -93,3 +103,56 @@ const (
 	// messageRatelimitElevated used in channels where bot is a Moderator, VIP or Broadcaster
 	messageRatelimitElevated = messageRatelimit(100 * time.Millisecond)
 )
+
+type Permission int32
+
+const (
+	PermissionNone  Permission = 0
+	PermissionAdmin Permission = 1 << (iota - 1)
+	PermissionSkipCooldown
+)
+
+// Flag flags that can be set with the set command and update corresponding properties in the database
+type Flag int
+
+const (
+	FlagChannelMode Flag = iota
+)
+
+var FlagMap = map[string]Flag{
+	"channel-mode": FlagChannelMode,
+}
+
+// CommandError is a type for
+type CommandError int
+
+const (
+	// CommandErrorNoError command returned successfully
+	CommandErrorNoError CommandError = iota
+
+	// CommandErrorInvalidArguments user used invalid syntax
+	// Could be caused by providing invalid arguments or too little of them
+	CommandErrorInvalidArguments
+
+	// CommandErrorInternal something completely unexpected happened, e.g. parsing new http.Req
+	CommandErrorInternal
+
+	// CommandErrorHTTPRequest executing an HTTP request failed, or any other HTTP request-related action
+	CommandErrorHTTPRequest
+
+	// CommandErrorReply something related to user's input failed
+	// Response should be sent to the user in the Command.Run right before the return
+	CommandErrorReply
+
+	// CommandErrorMongo emits when a MongoDB operation failed / couldn't be performed
+	CommandErrorMongo
+)
+
+func (err CommandError) String() (str string) {
+	switch err {
+	case CommandErrorNoError:
+		return "channel-mode"
+	default:
+		return
+	}
+}

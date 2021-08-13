@@ -18,4 +18,5 @@ type CollectionName string
 
 const (
 	CollectionNameChannels = CollectionName("channels")
+	CollectionNameUsers    = CollectionName("users")
 )

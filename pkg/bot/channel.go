@@ -59,7 +59,7 @@ func (channel *Channel) VerboseName() string {
 	return fmt.Sprintf("#%s(%s)", channel.Login, channel.ID)
 }
 
-func (channel *Channel) ChangeMode(mongo *db.Connection, newMode ChannelMode) {
+func (channel *Channel) ChangeMode(mongo *db.Connection, newMode ChannelMode) error {
 	log.Printf("Changing mode in %s from %v to %v", channel.VerboseName(), channel.Mode.String(), newMode.String())
 	channel.Mode = newMode
 
@@ -71,7 +71,9 @@ func (channel *Channel) ChangeMode(mongo *db.Connection, newMode ChannelMode) {
 			"mode": newMode,
 		},
 	})
+
 	if err != nil {
 		log.Println("Error in Channel.ChangeMode: " + err.Error())
 	}
+	return err
 }

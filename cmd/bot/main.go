@@ -37,6 +37,7 @@ func main() {
 	}
 
 	registerEventHandlers()
+	zb.Users = initUsers(ctx)
 	zb.Channels = initChannels(ctx)
 
 	err := zb.Client.Connect()
