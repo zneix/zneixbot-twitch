@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
+	"github.com/nicklaw5/helix"
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 )
 
@@ -16,6 +17,7 @@ type Self struct {
 
 type Bot struct {
 	TwitchIRC *twitch.Client
+	Helix     *helix.Client
 	Mongo     *db.Connection
 	Logins    map[string]string
 	Channels  map[string]*Channel

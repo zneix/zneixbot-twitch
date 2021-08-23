@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
+	"github.com/zneix/zneixbot-twitch/internal/helixclient"
 	"github.com/zneix/zneixbot-twitch/pkg/bot"
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 	"github.com/zneix/zneixbot-twitch/pkg/utils"
@@ -21,6 +22,11 @@ func main() {
 
 	oauth, _ := utils.GetEnv("OAUTH", true)
 
+	helixClient, err := helixclient.New()
+	if err != nil {
+		log.Fatalf("[Helix] Error while initializing client: %s\n", err)
+	}
+
 	self := &bot.Self{
 		Login:   "zneixbot",
 		OAuth:   oauth,
@@ -29,6 +35,7 @@ func main() {
 
 	zb = &bot.Bot{
 		TwitchIRC: twitch.NewClient(self.Login, self.OAuth),
+		Helix:     helixClient,
 		Mongo:     db.NewMongoConnection(),
 		Logins:    make(map[string]string),
 		Commands:  initCommands(),
@@ -40,7 +47,7 @@ func main() {
 	zb.Users = initUsers(ctx)
 	zb.Channels = initChannels(ctx)
 
-	err := zb.TwitchIRC.Connect()
+	err = zb.TwitchIRC.Connect()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
