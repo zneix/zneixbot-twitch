@@ -12,13 +12,13 @@ const prefix = "z!"
 
 func registerEventHandlers() {
 	// Authenticated with IRC
-	zb.Client.OnConnect(func() {
+	zb.TwitchIRC.OnConnect(func() {
 		log.Println("connected to IRC")
 		joinChannels()
 	})
 
 	// PRIVMSG
-	zb.Client.OnPrivateMessage(func(message twitch.PrivateMessage) {
+	zb.TwitchIRC.OnPrivateMessage(func(message twitch.PrivateMessage) {
 		channel := zb.Channels[zb.Logins[message.Channel]]
 
 		// Ignore inactive channels
@@ -43,7 +43,7 @@ func registerEventHandlers() {
 	})
 
 	// USERSTATE
-	zb.Client.OnUserStateMessage(func(message twitch.UserStateMessage) {
+	zb.TwitchIRC.OnUserStateMessage(func(message twitch.UserStateMessage) {
 		channel := zb.Channels[zb.Logins[message.Channel]]
 
 		// Ignore inactive channels

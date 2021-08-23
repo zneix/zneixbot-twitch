@@ -16,7 +16,7 @@ func (channel *Channel) Write(bot *Bot) {
 
 	for message := range channel.QueueChannel {
 		// Actually send the message to the chat
-		bot.Client.Say(channel.Login, message.Message)
+		bot.TwitchIRC.Say(channel.Login, message.Message)
 
 		// Update last sent message
 		channel.LastMsg = message.Message

@@ -28,7 +28,7 @@ func main() {
 	}
 
 	zb = &bot.Bot{
-		Client:    twitch.NewClient(self.Login, self.OAuth),
+		TwitchIRC: twitch.NewClient(self.Login, self.OAuth),
 		Mongo:     db.NewMongoConnection(),
 		Logins:    make(map[string]string),
 		Commands:  initCommands(),
@@ -40,7 +40,7 @@ func main() {
 	zb.Users = initUsers(ctx)
 	zb.Channels = initChannels(ctx)
 
-	err := zb.Client.Connect()
+	err := zb.TwitchIRC.Connect()
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

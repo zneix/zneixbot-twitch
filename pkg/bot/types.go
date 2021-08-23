@@ -15,7 +15,7 @@ type Self struct {
 }
 
 type Bot struct {
-	Client    *twitch.Client
+	TwitchIRC *twitch.Client
 	Mongo     *db.Connection
 	Logins    map[string]string
 	Channels  map[string]*Channel

@@ -55,7 +55,7 @@ func joinChannels() {
 		go channel.Write(zb)
 
 		// JOIN the channel
-		zb.Client.Join(channel.Login)
+		zb.TwitchIRC.Join(channel.Login)
 		//channel.Send("HONEYDETECTED ❗")
 	}
 }
