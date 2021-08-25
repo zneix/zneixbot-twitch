@@ -27,7 +27,6 @@ type eventSubNotification struct {
 func index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("This is the public zneixbot's API, but most of the endpoints are (and will be) undocumented ThreeLetterAPI TeaTime\nMore information on the GitHub repo: https://github.com/zneix/zneixbot-twitch"))
-	w.WriteHeader(http.StatusOK)
 }
 
 func health(w http.ResponseWriter, r *http.Request) {
