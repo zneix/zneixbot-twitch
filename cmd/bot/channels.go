@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/zneix/zneixbot-twitch/internal/eventsub"
 	"github.com/zneix/zneixbot-twitch/pkg/bot"
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,6 +30,14 @@ func initChannels(parentCtx context.Context) (channels map[string]*bot.Channel) 
 		err := cur.Decode(&channel)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		// In case "eventsub" wasn't found, init empty object so that we won't panic
+		if channel.EventSub == nil {
+			channel.EventSub = &bot.ChannelEventSub{
+				Enabled:       false,
+				Subscriptions: make([]*bot.ChannelEventSubSubscription, 0),
+			}
 		}
 
 		// Initialize default values
@@ -57,5 +66,13 @@ func joinChannels() {
 		// JOIN the channel
 		zb.TwitchIRC.Join(channel.Login)
 		//channel.Send("HONEYDETECTED ❗")
+
+		// Subscribe to EventSub subscriptions
+		if channel.EventSub.Enabled {
+			for _, sub := range channel.EventSub.Subscriptions {
+				eventsub.CreateChannelSubscription(zb, sub, channel.ID)
+			}
+		}
+		// end of the loop
 	}
 }

@@ -28,9 +28,10 @@ type Bot struct {
 }
 
 type Channel struct {
-	ID    string      `bson:"id"`
-	Login string      `bson:"login"`
-	Mode  ChannelMode `bson:"mode"`
+	ID       string           `bson:"id"`
+	Login    string           `bson:"login"`
+	Mode     ChannelMode      `bson:"mode"`
+	EventSub *ChannelEventSub `bson:"eventsub"`
 
 	LastMsg      string
 	QueueChannel chan *QueuedMessage
@@ -53,6 +54,18 @@ type User struct {
 
 type QueuedMessage struct {
 	Message string
+}
+
+// ChannelEventSub represents Channel's EventSub settings along with all Subscriptions active in the Channel
+type ChannelEventSub struct {
+	Enabled       bool                           `bson:"enabled"`
+	Subscriptions []*ChannelEventSubSubscription `bson:"subscriptions"`
+}
+
+// ChannelEventSubSubscription represents an EventSub subscription type as stored in database
+type ChannelEventSubSubscription struct {
+	Type    string `bson:"type"`
+	Version string `bson:"version"`
 }
 
 // BotType represents which kind of global rate-limit the bot has

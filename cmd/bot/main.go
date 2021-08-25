@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
+	"github.com/zneix/zneixbot-twitch/internal/eventsub"
 	"github.com/zneix/zneixbot-twitch/internal/helixclient"
 	"github.com/zneix/zneixbot-twitch/pkg/bot"
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
@@ -46,6 +47,10 @@ func main() {
 	registerEventHandlers()
 	zb.Users = initUsers(ctx)
 	zb.Channels = initChannels(ctx)
+
+	waitForEventsubWebServerClose := make(chan struct{})
+	go eventsub.InitializeWebServer(zb, waitForEventsubWebServerClose)
+	// TODO: Handle waitForEventsubWebServerClose being closed without blocking
 
 	err = zb.TwitchIRC.Connect()
 	if err != nil {
