@@ -175,8 +175,11 @@ func handleCommands(msg twitch.PrivateMessage, command string, args []string) {
 	}
 
 	// check for permission
-	if !utils.HasBits(uint64(zb.Users[msg.User.ID].Permission), uint64(cmd.Permission)) {
-		return
+	user, ok := zb.Users[msg.User.ID]
+	if ok {
+		if !utils.HasBits(uint64(user.Permission), uint64(cmd.Permission)) {
+			return
+		}
 	}
 
 	// handle cooldown
@@ -221,7 +224,7 @@ func handleCommands(msg twitch.PrivateMessage, command string, args []string) {
 	}
 
 	// apply cooldown
-	if !utils.HasBits(uint64(zb.Users[msg.User.ID].Permission), uint64(bot.PermissionSkipCooldown)) {
+	if !ok || !utils.HasBits(uint64(user.Permission), uint64(bot.PermissionSkipCooldown)) {
 		log.Printf("Applying cooldown to %s", msg.User.ID)
 		channel.Cooldowns[msg.User.ID] = time.Now()
 	}
