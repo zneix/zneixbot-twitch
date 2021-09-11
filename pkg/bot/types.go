@@ -77,7 +77,7 @@ const (
 	BotTypeVerified
 )
 
-// ChannelMode ...
+// ChannelMode indicates the bot's state in a Channel
 type ChannelMode int
 
 const (

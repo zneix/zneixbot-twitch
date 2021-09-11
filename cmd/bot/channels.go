@@ -44,7 +44,7 @@ func initChannels(parentCtx context.Context) (channels map[string]*bot.Channel) 
 		channel.Cooldowns = make(map[string]time.Time)
 		channel.QueueChannel = make(chan *bot.QueuedMessage)
 
-		channels[(&channel).ID] = &channel
+		channels[channel.ID] = &channel
 	}
 
 	if err := cur.Err(); err != nil {
