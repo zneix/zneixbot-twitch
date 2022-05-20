@@ -85,7 +85,7 @@ func handlePajbotAnnounceChain(message *twitch.PrivateMessage) {
 		return
 	}
 
-	if message.Message != "/announce p" {
+	if message.Message != "/announce p gopherDance" {
 		return
 	}
 
