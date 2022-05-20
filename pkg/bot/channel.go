@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+    "strings"
 
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,10 +33,13 @@ func (channel *Channel) Send(message string) {
 		return
 	}
 
-	// Escape commands
-	// TODO: Allow some commands to go through, e.g. /me
+    // Escape commands
 	if message[0] == '.' || message[0] == '/' {
-		message = ". " + message
+		log.Println(strings.Fields(message)[0][1:])
+		// Allow some commands to go through, e.g. /me
+		if strings.Fields(message)[0][1:] != "me" {
+			message = ". " + message
+		}
 	}
 
 	// limitting message length to 300
