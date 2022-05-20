@@ -76,7 +76,7 @@ func registerEventHandlers() {
 const (
 	pajladaUserID             = "11148817" // channel where custom events are taking place
 	pajbotUserID              = "82008718"
-	pajbotAnnounceChainUserID = "727629632" // melonbot__ replies with letter "p"
+	pajbotAnnounceChainUserID = "147677870" // icecreamdatabase replies with letter "q"
 	zneixUserID               = "99631238"  // bot creator's ID for testing purposes
 )
 
@@ -85,7 +85,7 @@ func handlePajbotAnnounceChain(message *twitch.PrivateMessage) {
 		return
 	}
 
-	if message.Message != "/announce p gopherDance" {
+	if message.Message != "/announce q" {
 		return
 	}
 
