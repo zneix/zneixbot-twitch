@@ -26,8 +26,9 @@ func registerEventHandlers() {
 			return
 		}
 
-		// Ignore non-commands
+		// Handle non-commands
 		if !strings.HasPrefix(message.Message, prefix) {
+			handlePajbotAnnounceChain(&message)
 			return
 		}
 
@@ -70,4 +71,23 @@ func registerEventHandlers() {
 			//channel.Mode = newMode
 		}
 	})
+}
+
+const (
+	pajladaUserID             = "11148817" // channel where custom events are taking place
+	pajbotUserID              = "82008718"
+	pajbotAnnounceChainUserID = "727629632" // melonbot__ replies with letter "p"
+	zneixUserID               = "99631238"  // bot creator's ID for testing purposes
+)
+
+func handlePajbotAnnounceChain(message *twitch.PrivateMessage) {
+	if message.RoomID != pajladaUserID || (message.User.ID != pajbotAnnounceChainUserID && message.User.ID != zneixUserID) {
+		return
+	}
+
+	if message.Message != "/announce p" {
+		return
+	}
+
+	zb.Channels[message.RoomID].Send(".me /announce rrrree pajaR 💢")
 }
