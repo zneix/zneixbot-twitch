@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
-    "strings"
 
 	db "github.com/zneix/zneixbot-twitch/pkg/mongo"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,7 +33,7 @@ func (channel *Channel) Send(message string) {
 		return
 	}
 
-    // Escape commands
+	// Escape commands
 	if message[0] == '.' || message[0] == '/' {
 		log.Println(strings.Fields(message)[0][1:])
 		// Allow some commands to go through, e.g. /me
